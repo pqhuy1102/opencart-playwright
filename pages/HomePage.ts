@@ -14,7 +14,7 @@ export class HomePage {
   // constructor
   constructor(page: Page) {
     this.page = page;
-    this.myAccountDropdown = this.page.locator("a.dropdown");
+    this.myAccountDropdown = this.page.locator("span:has-text('My Account')");
     this.loginOption = this.page.getByText("Login");
     this.registerOption = this.page.getByText("Register");
     this.searchBox = this.page.getByPlaceholder("Search");
@@ -54,6 +54,14 @@ export class HomePage {
 
   async clickShoppingCartButton(): Promise<void> {
     await this.shoppingCartButton.click();
+  }
+
+  async isLogoutOptionAvailable(): Promise<boolean> {
+    if (await this.logoutOption.isVisible()) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   async clickLogoutOption(): Promise<void> {

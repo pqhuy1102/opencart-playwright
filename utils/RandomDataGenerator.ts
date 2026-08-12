@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
 
 export class RandomDataGenerator {
-  static generateRandomEmail(): string {
+  static generateRandomEmail(firstName: string, lastName: string): string {
     return faker.internet.email({
-      firstName: "Tom",
-      lastName: "Jerry",
+      firstName: firstName,
+      lastName: lastName,
       provider: "example.com",
     });
   }
@@ -15,5 +15,13 @@ export class RandomDataGenerator {
       memorable: true,
       pattern: /[A-Za-z0-9]/,
     });
+  }
+
+  static generateRandomFirstName(): string {
+    return faker.person.firstName();
+  }
+
+  static generateRandomLastName(): string {
+    return faker.person.lastName();
   }
 }
