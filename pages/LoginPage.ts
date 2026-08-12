@@ -7,16 +7,20 @@ export class LoginPage {
   private readonly emailInput: Locator;
   private readonly passwordInput: Locator;
   private readonly loginButton: Locator;
+  private readonly myAccountDropdown: Locator;
+  private readonly logoutOption: Locator;
 
   // constructor
   constructor(page: Page) {
     this.page = page;
     this.loginHeading = this.page.getByRole("heading", {
-      name: "Login",
+      name: "Returning Customer",
     });
     this.emailInput = this.page.locator("#input-email");
     this.passwordInput = this.page.locator("#input-password");
     this.loginButton = this.page.getByRole("button", { name: "Login" });
+    this.myAccountDropdown = this.page.locator("span:has-text('My Account')");
+    this.logoutOption = this.page.getByText("Logout");
   }
 
   // actions
@@ -35,5 +39,17 @@ export class LoginPage {
 
   async clickLoginButton(): Promise<void> {
     await this.loginButton.click();
+  }
+
+  async clickMyAccountDropdown(): Promise<void> {
+    await this.myAccountDropdown.click();
+  }
+
+  async isLogoutOptionAvailable(): Promise<boolean> {
+    if (await this.logoutOption.isVisible()) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

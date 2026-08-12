@@ -10,6 +10,7 @@ export class RegisterPage {
   private readonly passwordInput: Locator;
   private readonly privacyPolicyToggle: Locator;
   private readonly continueButton: Locator;
+  private readonly registerResultHeading: Locator;
 
   // constructor
   constructor(page: Page) {
@@ -23,6 +24,9 @@ export class RegisterPage {
     this.passwordInput = this.page.locator("#input-password");
     this.privacyPolicyToggle = this.page.locator("input[name='agree']");
     this.continueButton = this.page.getByRole("button", { name: "Continue" });
+    this.registerResultHeading = this.page.getByRole("heading", {
+      name: "Your Account Has Been Created!",
+    });
   }
 
   // actions
@@ -52,5 +56,9 @@ export class RegisterPage {
 
   async clickContinueButton(): Promise<void> {
     await this.continueButton.click();
+  }
+
+  async getRegisterSuccessMessage(): Promise<string> {
+    return await this.registerResultHeading.innerText();
   }
 }
