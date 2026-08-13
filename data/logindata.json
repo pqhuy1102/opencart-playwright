@@ -1,14 +1,26 @@
 [
   {
     "testName": "Valid login",
-    "email": "huy1@gmail.com",
+    "email": "huy2@gmail.com",
     "password": "123456",
     "expected": "success"
   },
   {
-    "testName": "Invalid login",
-    "email": "abcxyz@xyz.com",
+    "testName": "Invalid Login with incorrect email",
+    "email": "abc@xyz.com",
+    "password": "123456",
+    "expected": "loginError"
+  },
+  {
+    "testName": "Invalid Login with incorrect email format",
+    "email": "huy2@",
     "password": "abcxyx",
-    "expected": "failure"
+    "expected": "emailValidationError"
+  },
+  {
+    "testName": "Invalid Login with incorrect password",
+    "email": "huy2@gmail.com",
+    "password": "abcxyx",
+    "expected": "loginError"
   }
 ]
