@@ -9,6 +9,7 @@ export class LoginPage {
   private readonly loginButton: Locator;
   private readonly myAccountDropdown: Locator;
   private readonly logoutOption: Locator;
+  private readonly errorLoginMessage: Locator;
 
   // constructor
   constructor(page: Page) {
@@ -21,6 +22,9 @@ export class LoginPage {
     this.loginButton = this.page.getByRole("button", { name: "Login" });
     this.myAccountDropdown = this.page.locator("span:has-text('My Account')");
     this.logoutOption = this.page.getByText("Logout");
+    this.errorLoginMessage = this.page.locator(
+      ".alert.alert-danger.alert-dismissible",
+    );
   }
 
   // actions
@@ -51,5 +55,15 @@ export class LoginPage {
     } else {
       return false;
     }
+  }
+
+  async getLoginErrorMessage(): Promise<null | string> {
+    return this.errorLoginMessage.innerText();
+  }
+
+  async getEmailValidationMessage(): Promise<string> {
+    return await this.emailInput.evaluate(
+      (element) => (element as HTMLInputElement).validationMessage,
+    );
   }
 }
