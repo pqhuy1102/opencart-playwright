@@ -17,6 +17,7 @@ services:
                                       grep -F -q SUCCESS!\ OpenCart\ successfully\ installed /tmp/opencart-install.log
                                       touch /var/www/html/install.lock;
                                     fi
+                                    chown -R www-data:www-data /var/www/html/system/storage /var/www/html/image/cache /var/www/html/catalog/view/stylesheet
                                     exec apache2-foreground'
 
     mysql:
