@@ -38,6 +38,11 @@ jobs:
 
           echo "OpenCart is ready!"
 
+      - name: Verify OpenCart schema
+        run: |
+          docker compose -f opencart/docker-compose.yml exec -T mysql \
+            mysql -uroot -popencart opencart -e "SELECT 1 FROM oc_customer LIMIT 1"
+
       - name: Seed test user
         run: |
           docker compose -f opencart/docker-compose.yml cp opencart/seed-test-user.php opencart:/tmp/seed-test-user.php
