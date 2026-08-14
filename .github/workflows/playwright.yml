@@ -25,7 +25,11 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Start OpenCart
-        run: docker compose -f opencart/docker-compose.yml up -d --build --wait --wait-timeout 120
+        run: |
+          if ! docker compose -f opencart/docker-compose.yml up -d --build --wait --wait-timeout 120; then
+            docker compose -f opencart/docker-compose.yml logs --no-color
+            exit 1
+          fi
 
       - name: Wait for OpenCart to be ready
         run: |
@@ -40,8 +44,11 @@ jobs:
 
       - name: Verify OpenCart schema
         run: |
-          docker compose -f opencart/docker-compose.yml exec -T mysql \
-            mysql -uroot -popencart opencart -e "SELECT 1 FROM oc_customer LIMIT 1"
+          if ! docker compose -f opencart/docker-compose.yml exec -T mysql \
+            mysql -uroot -popencart opencart -e "SELECT 1 FROM oc_customer LIMIT 1"; then
+            docker compose -f opencart/docker-compose.yml logs --no-color opencart mysql
+            exit 1
+          fi
 
       - name: Seed test user
         run: |
