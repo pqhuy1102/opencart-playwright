@@ -1,5 +1,5 @@
 testName,email,password,expected
-Valid login,huy2@gmail.com,123456,success
+Valid login,huy1@gmail.com,123456,success
 Invalid Login with incorrect email,abc@xyz.com,123456,loginError
-Invalid Login with incorrect email format,huy2@,123456,emailValidationError
-Invalid Login with incorrect password,huy2@gmail.com,12345,loginError
+Invalid Login with incorrect email format,huy1@,123456,emailValidationError
+Invalid Login with incorrect password,huy1@gmail.com,12345,loginError

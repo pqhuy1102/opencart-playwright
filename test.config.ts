@@ -1,7 +1,7 @@
 export class TestConfig {
   appUrl = "http://localhost";
   //valid login credentials- create your own login account
-  email = "huy2@gmail.com";
+  email = "huy1@gmail.com";
   password = "123456";
   //product details
   productName = "MacBook";
