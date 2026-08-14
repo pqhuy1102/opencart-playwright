@@ -3,6 +3,7 @@ import { Page, Locator } from "@playwright/test";
 export class HomePage {
   // Variables
   private readonly page: Page;
+  private readonly navigationHeader: Locator;
   private readonly myAccountDropdown: Locator;
   private readonly loginOption: Locator;
   private readonly registerOption: Locator;
@@ -14,25 +15,30 @@ export class HomePage {
   // constructor
   constructor(page: Page) {
     this.page = page;
-    this.myAccountDropdown = this.page.locator("span:has-text('My Account')");
-    this.loginOption = this.page.getByText("Login");
-    this.registerOption = this.page.getByText("Register");
+    this.navigationHeader = this.page.locator("nav#top");
+    this.myAccountDropdown = this.navigationHeader.getByRole("button", {
+      name: "My Account",
+    });
+    this.loginOption = this.navigationHeader.getByRole("link", {
+      name: "Login",
+    });
+    this.registerOption = this.navigationHeader.getByRole("link", {
+      name: "Register",
+    });
     this.searchBox = this.page.getByPlaceholder("Search");
     this.searchButton = this.page.locator(
       "//button[@class='btn btn-light btn-lg']",
     );
     this.shoppingCartButton = this.page.getByText("Shopping Cart");
-    this.logoutOption = this.page.getByText("Logout");
+    this.logoutOption = this.navigationHeader.getByRole("link", {
+      name: "Logout",
+    });
   }
 
   // actions
   async isHomePageLoaded(): Promise<boolean> {
-    let title = await this.page.title();
-    if (title.includes("Your Store")) {
-      return true;
-    } else {
-      return false;
-    }
+    let navVisibility = await this.navigationHeader.isVisible();
+    return navVisibility;
   }
 
   async clickMyAccountDropdown(): Promise<void> {

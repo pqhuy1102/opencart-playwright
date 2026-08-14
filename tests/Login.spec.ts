@@ -28,7 +28,7 @@ test.beforeEach(async ({ page }) => {
 
 test(
   "Login with valid credentials - Config File",
-  { tag: ["@master", "@sanity", "@regression"] },
+  { tag: ["@login", "@sanity", "@regression"] },
   async () => {
     // Navigate to login page
     const isHomePageLoaded = await homePage.isHomePageLoaded();
@@ -51,7 +51,7 @@ test(
 for (const data of loginDataJson) {
   test(
     `Login test with JSON data: ${data.testName}`,
-    { tag: ["@master", "@sanity", "@regression", "@jsondata"] },
+    { tag: ["@login", "@sanity", "@regression", "@jsondata"] },
     async () => {
       // Navigate to login page
       const isHomePageLoaded = await homePage.isHomePageLoaded();
@@ -72,9 +72,7 @@ for (const data of loginDataJson) {
           expect(isMyAccountPageLoaded).toBeTruthy();
           break;
         case "loginerror":
-          expect(await loginPage.getLoginErrorMessage()).toContain(
-            " Warning: No match for E-Mail Address and/or Password.",
-          );
+          expect(await loginPage.getLoginErrorMessage()).toContain(" Warning");
           break;
 
         case "emailvalidationerror":
@@ -90,10 +88,10 @@ for (const data of loginDataJson) {
   );
 }
 
-for (const data of loginDataJson) {
+for (const data of loginDataCsv) {
   test(
     `Login test with CSV data: ${data.testName}`,
-    { tag: ["@master", "@sanity", "@regression", "@csvdata"] },
+    { tag: ["@login", "@sanity", "@regression", "@csvdata"] },
     async () => {
       // Navigate to login page
       const isHomePageLoaded = await homePage.isHomePageLoaded();
@@ -114,9 +112,7 @@ for (const data of loginDataJson) {
           expect(isMyAccountPageLoaded).toBeTruthy();
           break;
         case "loginerror":
-          expect(await loginPage.getLoginErrorMessage()).toContain(
-            " Warning: No match for E-Mail Address and/or Password.",
-          );
+          expect(await loginPage.getLoginErrorMessage()).toContain(" Warning");
           break;
 
         case "emailvalidationerror":

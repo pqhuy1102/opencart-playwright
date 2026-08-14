@@ -1,27 +1,66 @@
-# name: Playwright Tests
-# on:
-#   push:
-#     branches: [ main, master ]
-#   pull_request:
-#     branches: [ main, master ]
-# jobs:
-#   test:
-#     timeout-minutes: 60
-#     runs-on: ubuntu-latest
-#     steps:
-#     - uses: actions/checkout@v4
-#     - uses: actions/setup-node@v4
-#       with:
-#         node-version: lts/*
-#     - name: Install dependencies
-#       run: npm ci
-#     - name: Install Playwright Browsers
-#       run: npx playwright install --with-deps
-#     - name: Run Playwright tests
-#       run: npx playwright test
-#     - uses: actions/upload-artifact@v4
-#       if: ${{ !cancelled() }}
-#       with:
-#         name: playwright-report
-#         path: playwright-report/
-#         retention-days: 30
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Start OpenCart
+        run: |
+          if ! docker compose -f opencart/docker-compose.yml up -d --build --wait --wait-timeout 120; then
+            docker compose -f opencart/docker-compose.yml logs --no-color
+            exit 1
+          fi
+
+      - name: Wait for OpenCart to be ready
+        run: |
+          echo "Waiting for OpenCart..."
+
+          until curl --silent --fail http://localhost/ > /dev/null; do
+            echo "OpenCart is not ready yet..."
+            sleep 5
+          done
+
+          echo "OpenCart is ready!"
+
+      - name: Verify OpenCart schema
+        run: |
+          if ! docker compose -f opencart/docker-compose.yml exec -T mysql \
+            mysql -uroot -popencart opencart -e "SELECT 1 FROM oc_customer LIMIT 1"; then
+            docker compose -f opencart/docker-compose.yml logs --no-color opencart mysql
+            exit 1
+          fi
+
+      - name: Seed test user
+        run: |
+          docker compose -f opencart/docker-compose.yml cp opencart/seed-test-user.php opencart:/tmp/seed-test-user.php
+          docker compose -f opencart/docker-compose.yml exec -T opencart php /tmp/seed-test-user.php
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
