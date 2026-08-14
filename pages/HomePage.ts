@@ -37,12 +37,8 @@ export class HomePage {
 
   // actions
   async isHomePageLoaded(): Promise<boolean> {
-    let title = await this.page.title();
-    if (title.includes("Your Store")) {
-      return true;
-    } else {
-      return false;
-    }
+    let navVisibility = await this.navigationHeader.isVisible();
+    return navVisibility;
   }
 
   async clickMyAccountDropdown(): Promise<void> {

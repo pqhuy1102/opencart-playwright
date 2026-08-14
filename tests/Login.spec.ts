@@ -28,7 +28,7 @@ test.beforeEach(async ({ page }) => {
 
 test(
   "Login with valid credentials - Config File",
-  { tag: ["@loginvalid", "@sanity", "@regression"] },
+  { tag: ["@login", "@sanity", "@regression"] },
   async () => {
     // Navigate to login page
     const isHomePageLoaded = await homePage.isHomePageLoaded();

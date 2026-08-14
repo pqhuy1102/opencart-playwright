@@ -23,7 +23,8 @@ export class MyAccountPage {
 
   // actions
   async isMyAccountLoaded(): Promise<boolean> {
-    if ((await this.myAccountHeading.innerText()) === "My Account") {
+    let myAccountHeader = await this.myAccountHeading.innerText();
+    if (myAccountHeader === "My Account") {
       return true;
     } else {
       return false;
