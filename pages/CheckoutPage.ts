@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class CheckoutPage {
   // Variables
@@ -10,8 +10,10 @@ export class CheckoutPage {
   private readonly confirmOrderButton: Locator;
   private readonly shippingMethodModal: Locator;
   private readonly paymentMethodModal: Locator;
-
-  //constructor
+  private readonly orderSuccessMessage: Locator;
+  private readonly shippingContinueButton: Locator;
+  private readonly paymentContinueButton: Locator;
+  // Constructor
   constructor(page: Page) {
     this.page = page;
     this.checkoutTitle = page.getByRole("heading", {
@@ -20,45 +22,75 @@ export class CheckoutPage {
     this.existingAddressDropdown = page.locator("#input-shipping-address");
     this.chooseShippingMethodButton = page.locator("#button-shipping-methods");
     this.choosePaymentMethodButton = page.locator("#button-payment-methods");
-    this.confirmOrderButton = page.locator("#text-end > .btn");
-    this.shippingMethodModal = page.locator("#modal-shipping");
-    this.paymentMethodModal = page.locator("#modal-payment");
+    this.confirmOrderButton = this.page.locator(
+      "#button-confirm, #checkout-confirm button, button:has-text('Confirm Order')",
+    );
+    this.shippingMethodModal = page.locator("#modal-shipping .modal-body");
+    this.paymentMethodModal = page.locator("#modal-payment .modal-body");
+    this.orderSuccessMessage = this.page.getByRole("heading", {
+      name: "Your order has been placed!",
+    });
+    this.shippingContinueButton = this.shippingMethodModal.locator(
+      "#button-shipping-method",
+    );
+    this.paymentContinueButton = this.paymentMethodModal.locator(
+      "#button-payment-method",
+    );
   }
 
   // actions
-  async isCheckoutPageLoaded(): Promise<boolean> {
-    if (await this.checkoutTitle.isVisible()) {
-      return true;
-    } else {
-      return false;
-    }
+  async verifyCheckoutPageLoaded(): Promise<void> {
+    await expect(this.checkoutTitle).toBeVisible();
   }
 
-  async selectExistingAddress(address: string): Promise<void> {
-    await this.existingAddressDropdown.selectOption({ value: "1" });
+  async selectExistingAddress(): Promise<void> {
+    await this.existingAddressDropdown.selectOption({ index: 1 });
+  }
+
+  async clickShippingMethodButton(): Promise<void> {
+    await this.chooseShippingMethodButton.click();
+  }
+
+  async clickPaymentMethodButton(): Promise<void> {
+    await this.choosePaymentMethodButton.click();
   }
 
   async chooseShippingMethod(): Promise<void> {
-    await this.chooseShippingMethodButton.click();
-    let flatShipOption = this.shippingMethodModal.getByRole("radio");
-    await flatShipOption.check();
-    let continueButton = this.shippingMethodModal.getByRole("button", {
-      name: "Continue",
-    });
-    await continueButton.click();
+    const flatShipOption = this.shippingMethodModal.getByRole("radio");
+    await flatShipOption.click();
+
+    await Promise.all([
+      this.page.waitForResponse(
+        (res) =>
+          res.url().includes("route=checkout/shipping_method.save") &&
+          res.status() === 200,
+      ),
+      this.shippingContinueButton.click(),
+    ]);
+    await expect(this.shippingMethodModal).toBeHidden();
   }
 
   async choosePaymentMethod(): Promise<void> {
-    await this.choosePaymentMethodButton.click();
-    let codOption = this.paymentMethodModal.getByRole("radio");
-    await codOption.check();
-    let continueButton = this.paymentMethodModal.getByRole("button", {
-      name: "Continue",
-    });
-    await continueButton.click();
+    const codOption = this.paymentMethodModal.getByRole("radio");
+    await codOption.click();
+
+    await Promise.all([
+      this.page.waitForResponse(
+        (res) =>
+          res.url().includes("route=checkout/payment_method.save") &&
+          res.status() === 200,
+      ),
+      this.paymentContinueButton.click(),
+    ]);
+    await expect(this.paymentMethodModal).toBeHidden();
   }
 
   async confirmOrder(): Promise<void> {
+    await expect(this.confirmOrderButton).toBeEnabled();
     await this.confirmOrderButton.click();
+  }
+
+  async verifyOrderSuccessMessageVisible(): Promise<void> {
+    await expect(this.orderSuccessMessage).toBeVisible();
   }
 }

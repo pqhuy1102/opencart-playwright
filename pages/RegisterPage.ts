@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class RegisterPage {
   // Variables
@@ -9,8 +9,11 @@ export class RegisterPage {
   private readonly emailInput: Locator;
   private readonly passwordInput: Locator;
   private readonly privacyPolicyToggle: Locator;
-  private readonly continueButton: Locator;
+  private readonly submitRegistrationButton: Locator;
   private readonly registerResultHeading: Locator;
+  private readonly searchBox: Locator;
+  private readonly searchButton: Locator;
+  private readonly continueToAccountPage: Locator;
 
   // constructor
   constructor(page: Page) {
@@ -23,19 +26,25 @@ export class RegisterPage {
     this.emailInput = this.page.locator("#input-email");
     this.passwordInput = this.page.locator("#input-password");
     this.privacyPolicyToggle = this.page.locator("input[name='agree']");
-    this.continueButton = this.page.getByRole("button", { name: "Continue" });
+    this.submitRegistrationButton = this.page.getByRole("button", {
+      name: "Continue",
+    });
     this.registerResultHeading = this.page.getByRole("heading", {
       name: "Your Account Has Been Created!",
+    });
+    this.searchBox = this.page.getByPlaceholder("Search");
+    this.searchButton = this.page.locator(
+      "//button[@class='btn btn-light btn-lg']",
+    );
+    this.continueToAccountPage = this.page.getByRole("link", {
+      name: "Continue",
     });
   }
 
   // actions
-  async isRegisterPageLoaded(): Promise<boolean> {
-    if (await this.registerHeading.isVisible()) {
-      return true;
-    } else {
-      return false;
-    }
+
+  async verifyRegisterPageLoaded(): Promise<void> {
+    await expect(this.registerHeading).toBeVisible();
   }
 
   async inputRegisterForm(
@@ -54,11 +63,20 @@ export class RegisterPage {
     await this.privacyPolicyToggle.check();
   }
 
-  async clickContinueButton(): Promise<void> {
-    await this.continueButton.click();
+  async submitRegistration(): Promise<void> {
+    await this.submitRegistrationButton.click();
   }
 
   async getRegisterSuccessMessage(): Promise<string> {
     return await this.registerResultHeading.innerText();
+  }
+
+  async searchProduct(productName: string): Promise<void> {
+    await this.searchBox.fill(productName);
+    await this.searchButton.click();
+  }
+
+  async navigateToAccountPage(): Promise<void> {
+    await this.continueToAccountPage.click();
   }
 }

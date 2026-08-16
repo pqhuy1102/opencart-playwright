@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class HomePage {
   // Variables
@@ -11,34 +11,37 @@ export class HomePage {
   private readonly searchBox: Locator;
   private readonly searchButton: Locator;
   private readonly shoppingCartButton: Locator;
+  private readonly myAccountOptionList: Locator;
 
-  // constructor
+  // Constructor
   constructor(page: Page) {
     this.page = page;
     this.navigationHeader = this.page.locator("nav#top");
     this.myAccountDropdown = this.navigationHeader.getByRole("button", {
       name: "My Account",
     });
-    this.loginOption = this.navigationHeader.getByRole("link", {
+    this.myAccountOptionList =
+      this.navigationHeader.locator("ul.dropdown-menu");
+    this.loginOption = this.myAccountOptionList.getByRole("link", {
       name: "Login",
     });
-    this.registerOption = this.navigationHeader.getByRole("link", {
+    this.registerOption = this.myAccountOptionList.getByRole("link", {
       name: "Register",
     });
     this.searchBox = this.page.getByPlaceholder("Search");
     this.searchButton = this.page.locator(
       "//button[@class='btn btn-light btn-lg']",
     );
-    this.shoppingCartButton = this.page.getByText("Shopping Cart");
+    this.shoppingCartButton = this.navigationHeader.getByRole("link", {
+      name: "Shopping Cart",
+    });
     this.logoutOption = this.navigationHeader.getByRole("link", {
       name: "Logout",
     });
   }
 
-  // actions
-  async isHomePageLoaded(): Promise<boolean> {
-    let navVisibility = await this.navigationHeader.isVisible();
-    return navVisibility;
+  async verifyHomePageLoaded(): Promise<void> {
+    await expect(this.navigationHeader).toBeVisible();
   }
 
   async clickMyAccountDropdown(): Promise<void> {
@@ -60,14 +63,6 @@ export class HomePage {
 
   async clickShoppingCartButton(): Promise<void> {
     await this.shoppingCartButton.click();
-  }
-
-  async isLogoutOptionAvailable(): Promise<boolean> {
-    if (await this.logoutOption.isVisible()) {
-      return true;
-    } else {
-      return false;
-    }
   }
 
   async clickLogoutOption(): Promise<void> {

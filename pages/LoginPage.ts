@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class LoginPage {
   // Variables
@@ -8,7 +8,6 @@ export class LoginPage {
   private readonly passwordInput: Locator;
   private readonly loginButton: Locator;
   private readonly myAccountDropdown: Locator;
-  private readonly logoutOption: Locator;
   private readonly errorLoginMessage: Locator;
 
   // constructor
@@ -21,19 +20,14 @@ export class LoginPage {
     this.passwordInput = this.page.locator("#input-password");
     this.loginButton = this.page.getByRole("button", { name: "Login" });
     this.myAccountDropdown = this.page.locator("span:has-text('My Account')");
-    this.logoutOption = this.page.getByText("Logout");
     this.errorLoginMessage = this.page.locator(
       ".alert.alert-danger.alert-dismissible",
     );
   }
 
   // actions
-  async isLoginPageLoaded(): Promise<boolean> {
-    if (await this.loginHeading.isVisible()) {
-      return true;
-    } else {
-      return false;
-    }
+  async verifyLoginPageLoaded(): Promise<void> {
+    await expect(this.loginHeading).toBeVisible();
   }
 
   async inputLoginForm(email: string, password: string): Promise<void> {
@@ -49,16 +43,8 @@ export class LoginPage {
     await this.myAccountDropdown.click();
   }
 
-  async isLogoutOptionAvailable(): Promise<boolean> {
-    if (await this.logoutOption.isVisible()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  async getLoginErrorMessage(): Promise<null | string> {
-    return this.errorLoginMessage.innerText();
+  async getLoginErrorMessage(): Promise<string> {
+    return await this.errorLoginMessage.innerText();
   }
 
   async getEmailValidationMessage(): Promise<string> {

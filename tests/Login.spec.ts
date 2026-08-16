@@ -6,8 +6,8 @@ import { TestConfig } from "../test.config";
 import { DataProvider } from "../utils/DataProvider";
 import { LoginData } from "../interface/LoginData";
 
-let loginDataCsvPath = "data/logindata.csv";
-let loginDataJsonPath = "data/logindata.json";
+let loginDataCsvPath = "test-data/logindata.csv";
+let loginDataJsonPath = "test-data/logindata.json";
 let homePage: HomePage;
 let loginPage: LoginPage;
 let myAccountPage: MyAccountPage;
@@ -31,20 +31,17 @@ test(
   { tag: ["@login", "@sanity", "@regression"] },
   async () => {
     // Navigate to login page
-    const isHomePageLoaded = await homePage.isHomePageLoaded();
-    expect(isHomePageLoaded).toBeTruthy();
+    await homePage.verifyHomePageLoaded();
     await homePage.clickMyAccountDropdown();
     await homePage.clickLoginOption();
 
     // Login page
-    const isLoginPageLoaded = await loginPage.isLoginPageLoaded();
-    expect(isLoginPageLoaded).toBeTruthy();
+    await loginPage.verifyLoginPageLoaded();
     await loginPage.inputLoginForm(config.email, config.password);
     await loginPage.clickLoginButton();
 
     // Navigate to My account page
-    const isMyAccountPageLoaded = await myAccountPage.isMyAccountLoaded();
-    expect(isMyAccountPageLoaded).toBeTruthy();
+    await myAccountPage.verifyMyAccountLoaded();
   },
 );
 
@@ -54,22 +51,18 @@ for (const data of loginDataJson) {
     { tag: ["@login", "@sanity", "@regression", "@jsondata"] },
     async () => {
       // Navigate to login page
-      const isHomePageLoaded = await homePage.isHomePageLoaded();
-      expect(isHomePageLoaded).toBeTruthy();
+      await homePage.verifyHomePageLoaded();
       await homePage.clickMyAccountDropdown();
       await homePage.clickLoginOption();
 
       // Login page
-      const isLoginPageLoaded = await loginPage.isLoginPageLoaded();
-      expect(isLoginPageLoaded).toBeTruthy();
+      await loginPage.verifyLoginPageLoaded();
       await loginPage.inputLoginForm(data.email, data.password);
       await loginPage.clickLoginButton();
 
       switch (data.expected.toLowerCase()) {
         case "success":
-          const isMyAccountPageLoaded: boolean =
-            await myAccountPage.isMyAccountLoaded();
-          expect(isMyAccountPageLoaded).toBeTruthy();
+          await myAccountPage.verifyMyAccountLoaded();
           break;
         case "loginerror":
           expect(await loginPage.getLoginErrorMessage()).toContain(" Warning");
@@ -94,22 +87,18 @@ for (const data of loginDataCsv) {
     { tag: ["@login", "@sanity", "@regression", "@csvdata"] },
     async () => {
       // Navigate to login page
-      const isHomePageLoaded = await homePage.isHomePageLoaded();
-      expect(isHomePageLoaded).toBeTruthy();
+      await homePage.verifyHomePageLoaded();
       await homePage.clickMyAccountDropdown();
       await homePage.clickLoginOption();
 
       // Login page
-      const isLoginPageLoaded = await loginPage.isLoginPageLoaded();
-      expect(isLoginPageLoaded).toBeTruthy();
+      await loginPage.verifyLoginPageLoaded();
       await loginPage.inputLoginForm(data.email, data.password);
       await loginPage.clickLoginButton();
 
       switch (data.expected.toLowerCase()) {
         case "success":
-          const isMyAccountPageLoaded: boolean =
-            await myAccountPage.isMyAccountLoaded();
-          expect(isMyAccountPageLoaded).toBeTruthy();
+          await myAccountPage.verifyMyAccountLoaded();
           break;
         case "loginerror":
           expect(await loginPage.getLoginErrorMessage()).toContain(" Warning");
@@ -128,6 +117,14 @@ for (const data of loginDataCsv) {
   );
 }
 
-test.afterEach(async ({ page }) => {
-  await page.close();
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status !== testInfo.expectedStatus) {
+    console.log(`❌ Test failed: ${testInfo.title}`);
+
+    // Example: attach current URL or console errors to the HTML report
+    await testInfo.attach("failed-url", {
+      body: page.url(),
+      contentType: "text/plain",
+    });
+  }
 });

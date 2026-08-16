@@ -13,6 +13,14 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./tests",
+
+  /* 1. Global Test Timeout (default is 30s) */
+  timeout: 60 * 1000, // 60 seconds per test
+
+  /* 2. Global Expect/Assertion Timeout (default is 5s) */
+  expect: {
+    timeout: 10 * 1000, // 10 seconds for all expect() calls (toBeVisible, toHaveText, etc.)
+  },
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -29,6 +37,10 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+
+    /* 3. Action Timeout: Max time for .click(), .fill(), etc. */
+    actionTimeout: 10 * 1000, // 10 seconds
+
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     viewport: { width: 1280, height: 720 },
