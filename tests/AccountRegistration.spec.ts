@@ -20,21 +20,19 @@ test(
   { tag: ["@registration", "@sanity", "@regression"] },
   async () => {
     // Access Homepage
-    const isHomePageLoaded = await homePage.isHomePageLoaded();
-    expect(isHomePageLoaded).toBeTruthy();
+    await homePage.verifyHomePageLoaded();
     await homePage.clickMyAccountDropdown();
     await homePage.clickRegisterOption();
 
     // Perform register account
-    const isRegisterPageLoaded = await registerPage.isRegisterPageLoaded();
-    expect(isRegisterPageLoaded).toBeTruthy();
+    await registerPage.verifyRegisterPageLoaded();
     let firstName = RandomDataGenerator.generateRandomFirstName();
     let lastName = RandomDataGenerator.generateRandomLastName();
     let email = RandomDataGenerator.generateRandomEmail(firstName, lastName);
     let password = RandomDataGenerator.generateRandomPassword();
     await registerPage.inputRegisterForm(firstName, lastName, email, password);
     await registerPage.clickPrivacyPolicyToggle();
-    await registerPage.clickContinueButton();
+    await registerPage.submitRegistration();
 
     expect(await registerPage.getRegisterSuccessMessage()).toContain(
       "Your Account Has Been Created!",
@@ -42,6 +40,14 @@ test(
   },
 );
 
-test.afterEach(async ({ page }) => {
-  await page.close();
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status !== testInfo.expectedStatus) {
+    console.log(`❌ Test failed: ${testInfo.title}`);
+
+    // Example: attach current URL or console errors to the HTML report
+    await testInfo.attach("failed-url", {
+      body: page.url(),
+      contentType: "text/plain",
+    });
+  }
 });

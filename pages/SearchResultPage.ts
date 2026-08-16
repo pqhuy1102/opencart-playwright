@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { ProductCard } from "./ProductCard";
 
 export class SearchResultPage {
@@ -6,6 +6,8 @@ export class SearchResultPage {
   private readonly page: Page;
   private readonly searchResultHeading: Locator;
   private readonly productCards: Locator;
+  private readonly navigationHeader: Locator;
+  private readonly shoppingCartButton: Locator;
 
   // constructor
   constructor(page: Page) {
@@ -14,19 +16,23 @@ export class SearchResultPage {
       name: "Products meeting the search criteria",
     });
     this.productCards = this.page.locator(".product-thumb");
+    this.navigationHeader = this.page.locator("nav#top");
+    this.shoppingCartButton = this.navigationHeader.getByRole("link", {
+      name: "Shopping Cart",
+    });
   }
 
   // actions
-  async isSearchResultPageLoaded(): Promise<boolean> {
-    if (await this.searchResultHeading.isVisible()) {
-      return true;
-    } else {
-      return false;
-    }
+  async verifySearchResultPageLoaded(): Promise<void> {
+    await expect(this.searchResultHeading).toBeVisible();
   }
 
-  getProduct(name: string): ProductCard {
-    const productCard = this.productCards.filter({ hasText: name });
+  getProduct(): ProductCard {
+    const productCard = this.productCards.first();
     return new ProductCard(productCard);
+  }
+
+  async clickShoppingCartButton(): Promise<void> {
+    await this.shoppingCartButton.click();
   }
 }
