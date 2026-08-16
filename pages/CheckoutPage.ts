@@ -67,6 +67,7 @@ export class CheckoutPage {
       ),
       this.shippingContinueButton.click(),
     ]);
+    await expect(this.shippingMethodModal).toBeHidden();
   }
 
   async choosePaymentMethod(): Promise<void> {
@@ -81,6 +82,7 @@ export class CheckoutPage {
       ),
       this.paymentContinueButton.click(),
     ]);
+    await expect(this.paymentMethodModal).toBeHidden();
   }
 
   async confirmOrder(): Promise<void> {
