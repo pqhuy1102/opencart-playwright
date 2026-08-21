@@ -26,7 +26,7 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: 0,
+  retries: 1,
   /* Opt out of parallel tests on CI. */
   workers: 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -41,7 +41,7 @@ export default defineConfig({
     /* 3. Action Timeout: Max time for .click(), .fill(), etc. */
     actionTimeout: 10 * 1000, // 10 seconds
 
-    trace: "on",
+    trace: "on-first-retry",
     screenshot: "only-on-failure",
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
