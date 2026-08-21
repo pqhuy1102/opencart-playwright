@@ -6,6 +6,10 @@ pipeline {
         }
     }
 
+    triggers {
+        cron('0 23 * * *')
+    }
+
     options {
         skipDefaultCheckout(true)
         timestamps()
@@ -33,6 +37,7 @@ pipeline {
                     git --version
                     docker --version
                     docker compose version
+                    docker info
                 '''
             }
         }
@@ -125,19 +130,34 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts:
+            archiveArtifacts artifacts(
                 'playwright-report/**,test-results/**,allure-results/**',
                 allowEmptyArchive: true
-        }
+            )
 
-        success {
-            bat 'docker compose -f %COMPOSE_FILE% down -v'
+            allure([
+                includeProperties: false,
+                jdk: '',
+                properties: [],
+                reportBuildPolicy: 'ALWAYS',
+                results: [[path: 'allure-results']]
+            ])
         }
 
         failure {
             bat '''
+                echo ===== Container Status =====
                 docker compose -f %COMPOSE_FILE% ps -a
+
+                echo ===== OpenCart Logs =====
                 docker compose -f %COMPOSE_FILE% logs --tail=150 opencart
+            '''
+        }
+
+        cleanup {
+            bat '''
+                echo ===== Cleaning Docker Environment =====
+                docker compose -f %COMPOSE_FILE% down -v
             '''
         }
     }
