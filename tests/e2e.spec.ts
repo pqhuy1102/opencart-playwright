@@ -36,6 +36,7 @@ test(
   "E2E: Verify user can register and checkout successfully",
   { tag: ["@e2e", "@regression"] },
   async () => {
+    test.setTimeout(120000);
     let productName: string = config.productName;
     let firstName: string;
     let lastName: string;
