@@ -62,6 +62,18 @@ pipeline {
             }
         }
 
+        stage('Reset Test Environment') {
+            steps {
+                bat '''
+                    docker compose -f %COMPOSE_FILE% down -v
+
+                    if exist opencart\\upload\\install.lock (
+                        del /f /q opencart\\upload\\install.lock
+                    )
+                '''
+            }
+        }
+
         stage('Start OpenCart') {
             steps {
                 bat '''
