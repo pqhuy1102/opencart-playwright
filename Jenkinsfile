@@ -130,8 +130,8 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts(
-                'playwright-report/**,test-results/**,allure-results/**',
+            archiveArtifacts(
+                artifacts: 'playwright-report/**,test-results/**,allure-results/**',
                 allowEmptyArchive: true
             )
 
