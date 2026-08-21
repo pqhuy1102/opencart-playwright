@@ -36,7 +36,6 @@ test(
   "E2E: Verify user can register and checkout successfully",
   { tag: ["@e2e", "@regression"] },
   async () => {
-    test.setTimeout(120000); // 2 minutes for full E2E flow
     let productName: string = config.productName;
     let firstName: string;
     let lastName: string;
@@ -112,10 +111,8 @@ test(
       await shoppingCartPage.clickCheckoutButton();
       await checkoutPage.verifyCheckoutPageLoaded();
       await checkoutPage.selectExistingAddress();
-      await checkoutPage.clickShippingMethodButton();
-      await checkoutPage.chooseShippingMethod();
-      await checkoutPage.clickPaymentMethodButton();
-      await checkoutPage.choosePaymentMethod();
+      await checkoutPage.selectShippingMethod();
+      await checkoutPage.selectPaymentMethod();
       await checkoutPage.confirmOrder();
       await checkoutPage.verifyOrderSuccessMessageVisible();
     });
