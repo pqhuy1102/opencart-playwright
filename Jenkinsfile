@@ -1,6 +1,7 @@
 pipeline {
     agent {
         node {
+            label 'opencart-playwright-agent'
             customWorkspace 'D:\\JenkinsWorkspace\\opencart-playwright-nightly'
         }
     }
