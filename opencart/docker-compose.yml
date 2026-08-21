@@ -11,6 +11,8 @@ services:
         command: |
             bash -e -o pipefail -c 'if [ ! -f /var/www/html/install.lock ]; then
                                       wait-for-it mysql:3306 -t 60
+                                      cp config-dist.php config.php
+                                      cp admin/config-dist.php admin/config.php
                                       php /var/www/html/install/cli_install.php install --username admin --password admin --email email@example.com --http_server http://localhost/ --db_driver mysqli --db_hostname mysql --db_username root --db_password opencart --db_database opencart --db_port 3306 --db_prefix oc_ | tee /tmp/opencart-install.log
                                       grep -F -q SUCCESS!\ OpenCart\ successfully\ installed /tmp/opencart-install.log
                                       touch /var/www/html/install.lock;
