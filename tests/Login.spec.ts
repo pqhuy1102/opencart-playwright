@@ -28,7 +28,7 @@ test.beforeEach(async ({ page }) => {
 
 test(
   "Login with valid credentials - Config File",
-  { tag: ["@login", "@sanity", "@regression"] },
+  { tag: ["@login", "@smoke"] },
   async () => {
     // Navigate to login page
     await homePage.verifyHomePageLoaded();
@@ -48,7 +48,7 @@ test(
 for (const data of loginDataJson) {
   test(
     `Login test with JSON data: ${data.testName}`,
-    { tag: ["@login", "@sanity", "@regression", "@jsondata"] },
+    { tag: ["@login", "@smoke", "@jsondata"] },
     async () => {
       // Navigate to login page
       await homePage.verifyHomePageLoaded();
@@ -84,7 +84,7 @@ for (const data of loginDataJson) {
 for (const data of loginDataCsv) {
   test(
     `Login test with CSV data: ${data.testName}`,
-    { tag: ["@login", "@sanity", "@regression", "@csvdata"] },
+    { tag: ["@login", "@smoke", "@csvdata"] },
     async () => {
       // Navigate to login page
       await homePage.verifyHomePageLoaded();
