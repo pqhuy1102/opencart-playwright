@@ -34,7 +34,7 @@ test.beforeEach(async ({ page }) => {
 
 test(
   "E2E: Verify user can register and checkout successfully",
-  { tag: ["@e2e", "@regression", "@smoke"] },
+  { tag: ["@e2e", "@regression"] },
   async () => {
     test.setTimeout(120000); // 2 minutes for full E2E flow
     let productName: string = config.productName;

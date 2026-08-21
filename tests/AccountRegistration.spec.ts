@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
 
 test(
   "User registeration with valid credentials",
-  { tag: ["@registration", "@sanity", "@regression"] },
+  { tag: ["@registration", "@smoke"] },
   async () => {
     // Access Homepage
     await homePage.verifyHomePageLoaded();
