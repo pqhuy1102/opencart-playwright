@@ -13,6 +13,7 @@ export class CheckoutPage {
   private readonly orderSuccessMessage: Locator;
   private readonly shippingContinueButton: Locator;
   private readonly paymentContinueButton: Locator;
+
   // Constructor
   constructor(page: Page) {
     this.page = page;
@@ -22,11 +23,9 @@ export class CheckoutPage {
     this.existingAddressDropdown = page.locator("#input-shipping-address");
     this.chooseShippingMethodButton = page.locator("#button-shipping-methods");
     this.choosePaymentMethodButton = page.locator("#button-payment-methods");
-    this.confirmOrderButton = this.page.locator(
-      "#button-confirm, #checkout-confirm button, button:has-text('Confirm Order')",
-    );
-    this.shippingMethodModal = page.locator("#modal-shipping .modal-body");
-    this.paymentMethodModal = page.locator("#modal-payment .modal-body");
+    this.confirmOrderButton = this.page.locator("#button-confirm");
+    this.shippingMethodModal = page.locator("#modal-shipping");
+    this.paymentMethodModal = page.locator("#modal-payment");
     this.orderSuccessMessage = this.page.getByRole("heading", {
       name: "Your order has been placed!",
     });
@@ -38,55 +37,109 @@ export class CheckoutPage {
     );
   }
 
-  // actions
+  private async clickContinueAndVerifySaved(
+    continueButton: Locator,
+    saveRouteFragment: string,
+  ): Promise<void> {
+    const [saveResponse] = await Promise.all([
+      this.page.waitForResponse(
+        (res) => res.url().includes(saveRouteFragment) && res.status() === 200,
+      ),
+      continueButton.click(),
+    ]);
+
+    const body = await saveResponse.json();
+    expect(
+      body.error,
+      `${saveRouteFragment} return error: ${JSON.stringify(body.error)}`,
+    ).toBeUndefined();
+  }
+
   async verifyCheckoutPageLoaded(): Promise<void> {
     await expect(this.checkoutTitle).toBeVisible();
   }
 
+  private async waitForAjaxIdle(): Promise<void> {
+    await this.page.waitForFunction(
+      () => {
+        const jquery = (window as any).jQuery;
+
+        return jquery && jquery.active === 0;
+      },
+      undefined,
+      {
+        timeout: 15000,
+      },
+    );
+  }
+
   async selectExistingAddress(): Promise<void> {
-    await this.existingAddressDropdown.selectOption({ index: 1 });
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.url().includes("route=checkout/shipping_address.address") &&
+        response.status() === 200,
+    );
+
+    await this.existingAddressDropdown.selectOption({
+      index: 1,
+    });
+
+    const response = await responsePromise;
+    const body = await response.json();
+
+    expect(body.error).toBeUndefined();
+    expect(body.success).toBeTruthy();
+
+    await this.waitForAjaxIdle();
   }
 
-  async clickShippingMethodButton(): Promise<void> {
+  async selectShippingMethod(): Promise<void> {
     await this.chooseShippingMethodButton.click();
-  }
 
-  async clickPaymentMethodButton(): Promise<void> {
-    await this.choosePaymentMethodButton.click();
-  }
+    await expect(this.shippingMethodModal).toBeVisible();
 
-  async chooseShippingMethod(): Promise<void> {
-    const flatShipOption = this.shippingMethodModal.getByRole("radio");
-    await flatShipOption.click();
+    const shippingOption = this.shippingMethodModal.getByRole("radio").first();
 
-    await Promise.all([
-      this.page.waitForResponse(
-        (res) =>
-          res.url().includes("route=checkout/shipping_method.save") &&
-          res.status() === 200,
-      ),
-      this.shippingContinueButton.click(),
-    ]);
+    await shippingOption.check();
+
+    await expect(shippingOption).toBeChecked();
+
+    await this.clickContinueAndVerifySaved(
+      this.shippingContinueButton,
+      "route=checkout/shipping_method.save",
+    );
+
+    await this.waitForAjaxIdle();
+
     await expect(this.shippingMethodModal).toBeHidden();
   }
 
-  async choosePaymentMethod(): Promise<void> {
-    const codOption = this.paymentMethodModal.getByRole("radio");
-    await codOption.click();
+  async selectPaymentMethod(): Promise<void> {
+    await this.choosePaymentMethodButton.click();
 
-    await Promise.all([
-      this.page.waitForResponse(
-        (res) =>
-          res.url().includes("route=checkout/payment_method.save") &&
-          res.status() === 200,
-      ),
-      this.paymentContinueButton.click(),
-    ]);
+    await expect(this.paymentMethodModal).toBeVisible();
+
+    const paymentOption = this.paymentMethodModal.getByRole("radio").first();
+
+    await paymentOption.check();
+
+    await expect(paymentOption).toBeChecked();
+
+    await this.clickContinueAndVerifySaved(
+      this.paymentContinueButton,
+      "route=checkout/payment_method.save",
+    );
+
+    await this.waitForAjaxIdle();
+
     await expect(this.paymentMethodModal).toBeHidden();
+
+    await expect(this.confirmOrderButton).toBeEnabled({
+      timeout: 15000,
+    });
   }
 
   async confirmOrder(): Promise<void> {
-    await expect(this.confirmOrderButton).toBeEnabled();
     await this.confirmOrderButton.click();
   }
 
