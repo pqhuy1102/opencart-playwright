@@ -44,6 +44,24 @@ pipeline {
             }
         }
 
+        stage('Wait for Docker') {
+            steps {
+                bat '''
+                    :wait
+
+                    docker info > nul 2>&1
+
+                    if errorlevel 1 (
+                        echo Waiting for Docker daemon...
+                        timeout /t 5 /nobreak > nul
+                        goto wait
+                    )
+
+                    echo Docker daemon is ready!
+                '''
+            }
+        }
+
         stage('Start OpenCart') {
             steps {
                 bat '''
